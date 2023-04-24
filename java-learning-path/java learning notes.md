@@ -303,7 +303,7 @@ for (int i=0; i<arr.length; i++){
 ```
 
 ### OOP
-
+原则：高内聚，低耦合，一段代码建议只实现一个功能，提高可读性和扩展性
 <img src="/Users/lawrencezhang/Desktop/self-learning-path/java-learning-path/Screenshot 2023-02-20 at 4.17.33 PM.png" alt="Screenshot 2023-02-20 at 4.17.33 PM" style="zoom:80%;" />
 
 ![Screenshot 2023-02-20 at 5.15.15 PM](/Users/lawrencezhang/Desktop/self-learning-path/java-learning-path/Screenshot 2023-02-20 at 5.15.15 PM.png)
@@ -454,23 +454,36 @@ public class A{
 }
 ```
 
-#### 属性类型static, non-static, final
+#### 属性类型 
+
+##### 类/静态变量static
+
+静态变量存放在堆中，在类对应的class实例的尾部，在类加载的时候初始化
 
 ```java
 // static: 存在于类中，所有创建的对象都可以访问，不需要创建对象也能访问
 class Car {
-    // static fields
-    static int topSpeed = 100;
-    static int maxCapacity = 4;  
+    static (public) int topSpeed = 100;  
+    (public) static int maxCapacity = 4;  
+  	public int n1;
+  	public static void show(){ //静态方法只能访问静态属性，静态方法
+      Car.topSpeed += 10;
+      System.out.println(this.maxCapacity);//类方法不允许使用和对象有关的关键字，this，super
+    }
 }
 class Demo {
     public static void main(String args[]){
-    // Static fields are accessible in the main
-    System.out.println(Car.topSpeed);
-    System.out.println(Car.maxCapacity);   
+    Car c = new Car();
+    System.out.println(Car.topSpeed); //100
+    System.out.println(c.topSpeed); //100
+    System.out.println(Car.n1); //错误
   }
 }
+```
 
+非静态变量non-static
+
+```java
 // non-static: 存在于类中，每个创建的对象都可以对这些属性有自己独特的值
 class Car {
     // static fields
@@ -484,29 +497,194 @@ class Demo {
     System.out.println(obj1.capacity);   
   }
 }
+```
 
-// final：属性的值不能改变
-class Car {
-  // Final variable capacity
-  final int capacity = 4;
-}
-class Demo {
-   public static void main(String args[]) {
-      Car car = new Car();
-      car.capacity = 5; // error can't assign a value to final variable capacity
-   }
-}
+##### main
 
-//
+1. main方法是虚拟机调用，虚拟机需要调用类的main方法，访问类型必须用public
+2. 虚拟机在执行main的时候不需要创建对象，所以必须是static
+3. 该方法接受String类型的参数，该数组保存java命令式传递的参数
+4. 在main方法中，可以直接调用静态方法或者属性，但不能调用本类非静态成员，需要创建新的实例
+
+```java
+//静态方法只能访问静态成员
 public class Hello{
     public static void main(String[] args){
-      System.out.println(p()); //错误，不能在static方法里面call non-static方法，必须要创建一个new class然后调用，或者将call的方法改成static
+      System.out.println(p()); //错误，不能在static方法里面运行non-static方法，必须要创建一个new class然后调用，或者将call的方法改成static
       Hello hello = new Hello();
       System.out.println(hello.p());//正确
     }
     public String p(){
         return "gasdasd";
     }
+}
+```
+
+##### 代码块
+
+static代码块，对类进行初始化，随着**类的加载**而执行，并且只会执行一次，只能调用静态属性
+
+如果是普通代码块，每创建一个对象，就执行一次，可以使用任意成员
+
+类什么时候会被加载：1. 创建对象实例时new，2. 创建子类对象实例，父类也会被加载，而且父类先被加载。3. 使用类的静态成员
+
+```java
+public static void main(String[] args){
+  AA aa = new AA();
+  AA aa1 = new AA(); //只会执行一次静态代码块
+  BB bb = new BB();
+  BB bb1 = new BB(); //执行两次
+  System.out.println(CC.n1); // 静态代码块会被调用：0, cc
+}
+class AA{
+  static {
+    System.out.println("asdad");
+  }
+}
+class BB{
+  {
+    System.out.println("asdad");
+  }
+}
+class cc{
+  public static int n1 = 0;
+  static {
+    System.out.println("cc");
+  }
+  {
+    System.out.println("asdad");
+  }
+}
+```
+
+创建一个对象时，在一个类，调用顺序：
+
+1. 调用静态代码块和静态属性初始化，优先级一样，如果有多个则按照定义顺序
+2. 调用普通代码亏和普通属性初始化，同理
+3. 调用构造器
+4. 构造器的最前面隐含super和调用本类普通代码块和普通属性初始化
+
+```java
+public static void main(String[] args){
+  A a = new A(); // 12345. asdads
+}
+class A{
+  private static int n1 = getN1();
+  static {
+    System.out.println("asdasd");
+  }
+  public static int getN1(){
+    System.out.println("12345");
+    return 100;
+  }
+}
+class BBB{
+  {
+     System.out.println();
+  }
+  public BBB(){
+    //super()
+    //本类普通代码块和普通属性初始化
+    .....
+  }
+}
+```
+
+ 创建子类时(继承关系)，静态代码块，静态属性初始化，普通代码块，普通属性初始化，构造器顺序如下：
+
+1. 父类的静态代码块和静态属性
+2. 子类的静态代码块和静态属性
+3. 父类的普通代码块和普通属性
+4. 父类的构造方法
+5. 子类的普通代码块和普通属性
+6. 子类的构造方法
+
+##### 单例设计模式
+
+单个实例，在软件系统中，对某个类只能存在一个对象实例。并且该类只提供一个取得其对象的方法
+
+饿汉式：还没要求对象但是对象已经创建了，会造成对象创建没使用的问题
+
+1. 构造器私有化=>防止直接new
+2. 类的内部创建对象
+3. 向外暴露一个静态的公共方法，getInstance
+
+```java
+public static void main(String[] args){
+  GirlFriend gf1 = GirlFriend.getInstance();
+  GirlFriend gf2 = GirlFriend.getInstance();
+  System.out.println(gf1 == gf2); // 正确
+}
+class GirlFriend{
+  private String name;
+  // 2. 类的内部创建对象，为了能够在静态方法中返回对象，需要static
+  private static GirlFriend gf = new GirlFriend("asd");
+  // 1.构造器私有化
+  private GirlFriend(String name){
+    this.name = name;
+  }
+  //3. 提供一个公开的static方法，返回对象
+  public static GirlFriend getInstance(){
+    return gf;
+  }
+}
+```
+
+懒汉式：存在线程安全问题
+
+```java
+public static void main(String[] args){
+  System.out.println(Cat.n1);//000
+  Cat instance1 = Cat.getInstance();//对象此时为空，创建新的
+  System.out.println(instance1); //dahuang
+  Cat instance2 = Cat.getInstance();//对象不为空，直接返回
+  System.out.println(instance2); //dahuang
+  System.out.println(instance1 == instance2); //true
+}
+//在程序运行过程中只能创建一个对象
+class Cat{
+  private String name;
+  public static int n1=000;
+  // 2.定义一个static静态对象
+  private static Cat cat;
+  // 1.构造器私有化
+  private Cat(String name){
+    this.name = name;
+  }
+  //3.提供一个public static方法，返回一个cat对象，只有当用户使用时，返回cat对象，当之后再次调用时，返回之前的对象
+  public static Cat getInstance(){
+    if (cat == null){
+      cat = new Cat("dahuang");
+    }
+    return cat;
+  }
+}
+```
+
+##### final
+
+1. 当不希望类被继承时，可以用final
+
+2. 当不希望父类的某个方法被子类重写时，用final
+3. 当不希望某个属性值被改变时，用final修饰
+4. 当不希望某个局部变量被修改的时候
+5. final修饰的属性在初始化必须赋值，且之后不能修改
+6. 如果final修饰的属性是静态的，那么初始化的位置只能是：1 定义时，2 静态代码块，不能在构造器赋值
+7. final类不能继承，但是可以创建对象
+8. 如果类不是final类，但是包含final方法，则该方法不能被重写，但是可以被继承
+9. final不能修饰构造器
+10. 如果一个类是final类，没有必要将方法改成final类
+11. final和static往往搭配使用，不会导致类加载，底层效率高
+
+```java
+class Car {
+  final int capacity = 4;
+}
+class Demo {
+   public static void main(String args[]) {
+      Car car = new Car();
+      car.capacity = 5; // 错误
+   }
 }
 ```
 
@@ -680,53 +858,6 @@ class Truck extends Vehicle {// Derived from Prius can be base to any further cl
 //这两类继承都只能用于interface
 ```
 
-##### 方法重载Overload
-
-```java
-//方法名字必须一样，参数必须不同（类型，顺序，个数，至少一个不一样），返回类型无所谓
-class Calculator{//系统调用方法的时候，会根据实际传入的参数寻找匹配
-  public int calculate(int n1, int n2){
-    return n1+n2;
-  }
-  public double calculate(int n1, double n2){
-    return n1+n2;
-  }
-  public double calculate(double n1, double n2){
-    return n1+n2;
-  }
-  public void calculate(int n1, int n2){//没有构成方法重载，和第一个是重复的
-    int res = n1+n2;
-  }
-}
-```
-
-##### 方法重写/覆盖Overwide
-
-```java
-//子类方法的返回类型必须是父类方法的返回类型，或者是其子类
-//子类方法不能缩小父类方法的访问权限：public > protected > default > private
-public class Aninmal{
-  public void bark(){
-    System.out.println("bark");
-  }
-  public Object m1(){
-    return null;
-  }
-  public void eat(){}
-}
-public class Dog extends Aninmal{
-  public void bark(){ // Dog的bark重写了Aniaml的
-    System.out.println("gun");
-  }
-  public String m1(){ //也构成重写，String是Object的子类
-    return null;
-  }
-  private void eat(){} //错误，访问权限改小了
-}
-```
-
-![Screenshot 2023-02-25 at 4.28.56 PM](/Users/lawrencezhang/Desktop/self-learning-path/java-learning-path/Screenshot 2023-02-25 at 4.28.56 PM.png)
-
 #### 多态Polymorphism
 
 同一个对象或者方法在不同情况下有不同的表现形式和行为
@@ -811,6 +942,53 @@ class Circle extends Shape {
     nc.size(); //ok
   }
 ```
+
+##### 方法重载Overload
+
+```java
+//方法名字必须一样，参数必须不同（类型，顺序，个数，至少一个不一样），返回类型无所谓
+class Calculator{//系统调用方法的时候，会根据实际传入的参数寻找匹配
+  public int calculate(int n1, int n2){
+    return n1+n2;
+  }
+  public double calculate(int n1, double n2){
+    return n1+n2;
+  }
+  public double calculate(double n1, double n2){
+    return n1+n2;
+  }
+  public void calculate(int n1, int n2){//没有构成方法重载，和第一个是重复的
+    int res = n1+n2;
+  }
+}
+```
+
+##### 方法重写/覆盖Overwide
+
+```java
+//子类方法的返回类型必须是父类方法的返回类型，或者是其子类
+//子类方法不能缩小父类方法的访问权限：public > protected > default > private
+public class Aninmal{
+  public void bark(){
+    System.out.println("bark");
+  }
+  public Object m1(){
+    return null;
+  }
+  public void eat(){}
+}
+public class Dog extends Aninmal{
+  public void bark(){ // Dog的bark重写了Aniaml的
+    System.out.println("gun");
+  }
+  public String m1(){ //也构成重写，String是Object的子类
+    return null;
+  }
+  private void eat(){} //错误，访问权限改小了
+}
+```
+
+![Screenshot 2023-02-25 at 4.28.56 PM](/Users/lawrencezhang/Desktop/self-learning-path/java-learning-path/Screenshot 2023-02-25 at 4.28.56 PM.png)
 
 ##### 属性重写问题
 
@@ -909,23 +1087,28 @@ class car{
 }
 ```
 
-#### Abstract Class & Interfaces
-
-Abstraction: 只把关键信息展示出来，隐藏其他内部细节降低复杂度，比如电视遥控器，Math module
-
-Abstract data type: defines *‘what operations are to be performed?’* rather than *‘how to be performed?’*
-
-Abstract method: 必须用abstract修饰符，而且只能存在于abstract class 或interface，只定义没有body部，并且不能被定义为private，因为其他class会用到，具体用的时候会根据需要写body部分
-
-Abstract class: 不能被初始化，不用必须包含abstract method，使用abstract class必须通过继承，继承的子类必须完整定义所有存在于父类abstract class的abstract method， 并且必须使用@override
-
+#### 抽象类Abstraction
+只把关键信息展示出来，隐藏其他内部细节降低复杂度，比如电视遥控器，Math module
+当父类的某些方法需要声明但又不确定如何实现时，可以将其声明为抽象类，抽象类会被子类继承，由其来实现方法。
+细节：
+1. 抽象类不能实例化
+2. 抽象类可以没有abstract方法，还可以有正常的方法
+3. 一旦包含了抽象方法，必须定义为抽象类
+4. abstract只能修饰类的和方法，不能修饰属性和其他
+5. 抽象类还是类，可以有任意成员，比如非抽象方法，构造器，静态属性等等
+6. 抽象类不能有主体，即不能实现
+7. 如果一个类继承了抽象类，则它必须实现抽象类的所有抽象方法，除非它自己也声明是抽象类
+8. 抽象方法不能使用private，final，static修饰，因为这些都和重写相违背
 ```java
+public class Abstract{
+    public static void main(String[] args) {
+        new Animal(); //报错
+    }
+}
 abstract class Animal {
   public abstract void makeSound();
   public void move() {
     System.out.println(getClass().getSimpleName()+" is moving");
-    //getClass().getSimpleName() is an inbuilt functionality of Java
-    //to get the class name from which the method is being called
   }
 }
 class Dog extends Animal {
@@ -934,44 +1117,37 @@ class Dog extends Animal {
     System.out.println("Woof Woof...");
   }
 }
-class Main {
-  public static void main(String args[]) {
-    // Creating the objects
-    Animal dog = new Dog();  
-    dog.makeSound();    // Calling methods from Dog
-    dog.move();
-  }
-  
-}
 ```
-
-Interface接口: 一个抽象类型（Abstract Type), 是抽象方法的集合，接口通常以interface来声明。一个类通过继承接口的方式，从而来继承接口的抽象方法。
-
-接口并不是类，编写接口的方式和类很相似，但是它们属于不同的概念。类描述对象的属性和方法。接口则包含类要实现的方法。除非实现接口的类是抽象类，否则该类要定义接口中的所有方法。
-
-接口不能创建对象，没有构造器，所有的方法必须是抽象方法，java8后接口中可以使用 default 关键字修饰的非抽象方法。接口不能包含成员变量，除了 static 和 final 变量。接口不是被类继承了，而是要被类实现，接口支持多继承
-
-特性：接口中每一个方法也是隐式抽象的,接口中的方法会被隐式的指定为 **public abstract**只能是public abstract。接口中可以含有变量，但是接口中的变量会被隐式的指定为 **public static final** 变量，并且只能是 public。一个类只能继承一个抽象类，但是可以实现多个接口
-
-接口的static method 不能被实现的子类override，同时子类也不能直接call
+#### 接口Interface 
+一个抽象类型（Abstract Type), 是抽象方法的集合，接口通常以interface来声明。一个类通过继承接口的方式，从而来继承接口的抽象方法。
+细节：
+1. 接口不能创建对象，没有构造器，所有的方法必须是抽象方法，用public修饰，abstract关键字可以省略
+2. 接口不是被类继承了，而是要被类实现，类必须实现接口的所有方法。接口支持多继承
+3. 抽象类实现接口时可以不实现接口的方法
+4. 一个类可以实现多个接口
+5. 接口中的属性只能是final的，并且是public static final 
+6. 接口不能继承其他的类，但可以继承多个接口
+7. 接口的修饰符默认是public 
+8. 接口的static method 不能被实现的子类override，同时子类也不能直接call
 
 ```java
 //声明
-[可见度] interface 接口名称 [extends 其他的接口名] {
-        // 声明变量
-        // 抽象方法
+[修饰] interface 接口名称 [extends 其他的接口名] {
+        // 属性
+        // 方法（抽象，默认实现，静态）
 }
-public interface NameOfInterface
-{
-   //任何类型 final, static 字段
-   //抽象方法
+public interface Animal {
+   public void eat(); //在接口中，抽象方法可以省略abstract关键字
+   void travel(); //默认public修饰
+   default public void ok(){ //jdk8以后，可以有默认实现方法，需要用default修饰
+       System.out.println("ok");
+   }
+   public static void go(){ //jdk8以后，可以有静态方法
+       System.out.println("asd");
+   }
+   int n1 = 10; // 等价public static final int n1 = 10;
 }
-interface Animal {
-   public void eat();
-   public void travel();
-}
-
-//接口的实现，类要实现接口中所有的方法。否则，类必须声明为抽象的类
+//接口的实现，类要实现接口中所有的抽象方法。否则，类必须声明为抽象的类
 public class MammalInt implements Animal{
    public void eat(){
       System.out.println("Mammal eats");
@@ -982,15 +1158,17 @@ public class MammalInt implements Animal{
    public int noOfLegs(){
       return 0;
    }
- 
-//接口的继承，一个接口能继承另一个接口，和类之间的继承方式比较相似
+}
+//一个类可以实现多个接口
+public class I implements Animals, Fruits{
+}
+
+//接口的单继承
 public interface Sports
 {
    public void setHomeTeam(String name);
    public void setVisitingTeam(String name);
 }
- 
-// 文件名: Football.java
 public interface Football extends Sports
 {
    public void homeTeamScored(int points);
@@ -999,38 +1177,841 @@ public interface Football extends Sports
 }
 //接口的多继承
 public interface Hockey extends Sports, Event{}
-
+```
+继承是is-a的关系，实现是like-a的关系，是对单继承机制的补充
+子类继承父类，自动拥有父类的功能，如果子类需要扩展，可以通过实现接口扩展
+接口可以实现代码解耦（接口规范+动态绑定）
+```java
 // 多个继承的实现需要interface
 class Car {  // Base class
-  private int model;  // Common features of all cars
-  public Car(int model) {  // Constructor
-    this.model = model;
-  }
-  public void printDetails() {
-    System.out.println("The model of " + getClass().getSimpleName() + " is: " + model);
-  }
+    private int model;  // Common features of all cars
+    public Car(int model) {  // Constructor
+        this.model = model;
+    }
+    public void printDetails() {
+        System.out.println("The model of " + getClass().getSimpleName() + " is: " + model);
+    }
 }  // End of Car class
 
 interface IsSedan {  // Interface for sedans
-  int bootSpace = 420;  // Sedans have boot space
-  void bootSpace();    // Every sedan must implement this
+    int bootSpace = 420;  // Sedans have boot space
+    void bootSpace();    // Every sedan must implement this
 }  // End of IsSedan interface
-
 class Elantra extends Car implements IsSedan {  // Elantra is a Car and is a Sedan also
-  private String variant;    // Elantra's data member
-  public Elantra(int model, String variant) {  // Constructor
-    super(model);  // Calling the parent constructor with alredy known manufacturer
-    this.variant = variant;  
-  }
-  @Override
-  public void bootSpace() { // Implementation of the interface method
-    System.out.println("The bootspace of Elantra is: " + IsSedan.bootSpace +" litres");
-  }
-  @Override
-  public void printDetails() {  // Overriding the parent class's inherited method
-    super.printDetails();    // Calling the method from parent class
-    System.out.println("The variant of Elantra is: " + variant); 
-  }
-}  // End of Elantra class
+    private String variant;    // Elantra's data member
+    public Elantra(int model, String variant) {  // Constructor
+        super(model);  // Calling the parent constructor with alredy known manufacturer
+        this.variant = variant;
+    }
+    @Override
+    public void bootSpace() { // Implementation of the interface method
+        System.out.println("The bootspace of Elantra is: " + IsSedan.bootSpace +" litres");
+    }
+    @Override
+    public void printDetails() {  // Overriding the parent class's inherited method
+        super.printDetails();    // Calling the method from parent class
+        System.out.println("The variant of Elantra is: " + variant);
+    }
+}  
 ```
+##### 接口的多态性
+
+```java
+public class InterfaceP {
+    public static void main(String[] args) {
+        If i = new A();
+        i = new B(); //接口类型的变量i 可以指向实现了If接口的对象实例
+
+        IG ig = new teacher();
+        IH ih = new teacher();//若果IG继承IH接口，而teacher实现了IG接口，那么相当于teacher也实现了IH接口,这就是多态传递
+    }
+}
+interface If {
+}
+class A implements If {
+}
+class B implements If {
+}
+
+//多态传递
+interface IH {
+    void hello();
+}
+interface IG extends IH {
+}
+class teacher implements IG {
+    @Override
+    public void hello() {
+    }
+}
+```
+#### 内部类
+一个类的内部有完整的嵌套了另一个类结构，被嵌套的称之为内部类，是类的五大成员（属性，方法，构造器，代码块。内部类），内部类可以直接访问私有属性，体现包含关系
+```java
+class Outer{
+    private int n1 = 10;
+    public Outer(int n1){
+        this.n1 = n1;
+    }
+    public void m1(){}
+    {
+        System.out.println("hello");
+    }
+    class Inner{}
+}
+```
+##### 内部类的分类
+定义在外部类局部位置上
+1. 局部内部类，有类名, 通常在方法
+   细节：
+   1. 可以直接访问外部类的所有成员，包括私有的
+   2. 不能添加访问修饰符，但是可以用final修饰
+   3. 作用域：仅在定义它的方法或者代码块中
+   4. 局部内部类直接访问外部类的成员
+   5. 外部类访问内部类成员，需要创建inner的对象，然后调用方法即可
+   6. 外部其他类不能访问内部类
+   7. 如果外部类和内部类的成员重名时，遵守就近原则，如果想访问外部类的成员，使用外部类名.this.成员去访问
+```java
+class Outer {
+    private int n1 = 10;
+    private void m2() {
+    }
+    public void m1() {
+        class Inner { //局部内部类，仍然是一个类
+            private int n1 = 800;
+            public void f1() {
+                System.out.println(n1); //800
+                m2(); //局部内部类直接访问外部类的成员
+                System.out.println(Outer.this.n1);//100, outer.this本质是外部类的对象，哪个对象调用了m1，就指向谁
+            }
+        }
+        Inner inner = new Inner();
+        inner.f1();
+    }
+}
+```
+2. 匿名内部类，无类名，本质还是类，同时还是一个对象
+```java
+class Outer {
+   private int n1 = 10;
+
+   public void method() {
+      //基于接口的匿名内部类， 简化开发
+      //a的编译类型是A，运行类型就是匿名内部类
+      /*
+              class XXX implements A{ //底层会分配类名，Outer$1
+                @Override
+               public void cry() {
+                  System.out.println("asd");
+               }
+              }
+       */
+      //jdk在底层创建匿名内部类Outer$1，立即马上创建了Outer$1实例，并把地址给a
+      //匿名内部类使用一次就不能在使用 
+      A a = new A() {
+         @Override
+         public void cry() {
+            System.out.println("asd");
+         }
+      };
+      a.cry();
+
+      //基于类的匿名内部类
+      // father 编译类型 Father
+      // father 运行类型 Outer$2
+      // 底层创建匿名内部类Outer$2, 同时返回对象
+      /*
+              class Outer$2 extends Father{
+                @Override 
+                public void test(){
+                    System.out.println("123");
+                }
+              }
+       */
+      //如果不加大括号就是普通的类
+      Father father = new Father("jack") { //参数会传递给构造器
+         @Override
+         public void test() {
+            System.out.println("123");
+         }
+      };
+
+      //就要抽象类的匿名内部类
+      Animal animal = new Animal(){
+          @Override
+          void eat(){
+            System.out.println("asd");
+         }
+      };
+   }
+}
+
+interface A {
+   public void cry();
+}
+
+class Father {
+   public Father(String name) {
+      this.name = name;
+   }
+
+   public void test() {
+      System.out.println("asdsad");
+   }
+}
+
+abstract class Animal {
+   abstract void eat() {
+   }
+}
+// 匿名内部类作为参数传入方法中，只会运行一次
+public class Main {
+   public static void main(String[] args) {
+      CellPhone cellPhone = new CellPhone();
+      cellPhone.alarm(new Bell() { //传递的是实现了Bell接口的匿名内部类Main,重写了ring()方法
+         @Override
+         public void ring() {
+            System.out.println("asda");
+         }
+      });
+      cellPhone.alarm(new Bell() {
+         @Override
+         public void ring() {
+            System.out.println("123");
+         }
+      });
+   }
+}
+interface Bell{
+   public void ring();
+}
+class CellPhone{
+   public void alarm(Bell bell){
+      bell.ring();//动态绑定和运行类型实际传递进去的一致
+   }
+}
+```
+定义在外部类的成员位置上
+3. 成员内部类，无static修饰，可以添加任意访问修饰符
+
+```java
+class Outer {//外部类
+   private int n1 = 90;
+   public String name = "jack";
+   private void hi() {
+      System.out.println("12");
+   }
+   public class Inner {//成员内部类，定义在外部类的成员位置上
+      public void say() {
+         System.out.println(n1 + name); //可以直接访问外部类的所有成员，包括私有的
+         hi();
+      }
+   }
+   public void t1() {
+      //使用成员内部类: 创建成员内部类对象，然后使用
+      Inner inner = new Inner();
+      inner.say();
+   }
+   public Innter getInner(){
+       return new Inner();
+   }
+
+   //外部其他类访问成员内部类的方法
+   public static void main(String[] args) {
+      Outer outer = new Outer();
+      // 1 直接通过外部类
+      Outer.Inner inner = outer.new Inner();
+      // 2 外部类中编写一个方法返回实例
+      Outer.Inner inner2 = outer.getInner();
+   }
+}
+```
+4. 静态内部类，有static修饰
+
+```java
+class Outer {
+   private int n1 = 90;
+   public static String name = "jack";
+
+   private static void cry() {
+   }
+
+   static class Inner { //静态内部类，放在外部类成员位置
+      public static String name = "kevin";
+      public void say() {
+         System.out.println(n1); //错误
+         System.out.println(name);//可以直接访问外部类的所有静态成员，包括私有的，不能直接访问非静态成员
+         cry();
+         System.out.println(Outer.name);
+      }
+   }
+   public void t1() {//使用成员内部类: 创建成员内部类对象，然后使用
+      Inner inner = new Inner();
+      inner.say();
+   }
+   public Inner get() {
+      return new Inner();
+   }
+
+   public static Inner get_() {
+      return new Inner();
+   }
+}
+
+public class Main {
+   public static void main(String[] args) {
+      Outer outer = new Outer();
+      //外部其他类访问静态内部类
+      // 1 静态内部类是可以通过类名直接访问，前提是满足访问权限
+      Outer.Inner inner = new Outer.Inner();
+      inner.say();
+      // 2 创建一个非静态方法返回静态内部类的对象
+      Outer.Inner inner1 = outer.get();
+      // 3 创建一个静态方法返回静态内部类的对象
+      Outer.Inner outer_ = outer.get_();
+   }
+}
+```
+### 异常
+
+1. Error(错误): Java虚拟机无法解决的问题，比如stack over flow等，内存不足
+2. Exception：其他因编程错误或者外在因素导致的一般性问题，比如空指针访问，读取不存在文件等等，主要分为两大类：运行时异常和编译时异常
+
+```java
+//try-catch-finally
+//捕获异常，自行处理
+try{//可能出现异常代码
+  //如果异常发生，则异常后面代码不会执行，直接catch，否则继续执行
+}catch(Exception e){//捕获异常
+  //将异常封装成Exception对象e，传递给catch，程序员自己处理。如果没有异常，catch不执行
+  //可以有多个catch分别捕获不同的异常，子类异常要写在前面，父类写在后面
+}finally{
+  //不管try是否有异常发生，始终要执行。通常将释放资源的代码放在这里
+}
+
+//throws
+//如果一个方法可能出现异常，但是并不能确定如何处理这些异常，此时可以将异常抛出，交给调用者处理，最低级调用者是JVM，throws是默认异常处理
+public void f2 throws Exception{//可以是多个异常
+  //可能出现异常代码
+}
+//子类重写父类方法时，对抛出异常的规定：子类抛出的异常必须和父类一致，或者是父类抛出异常的子类
+class Father{
+  public void method() throws RuntimeException{}
+}
+class Son extends Father{
+  @Override
+  public void method() throws NullPointerException{
+    throw new NullPointerException;
+  }
+}
+```
+
+### 常用类
+
+```java
+//integer创建机制
+public void method(){
+  Integer i = new Integer(1);
+  Integer j = new Integer(1);
+  System.out.println(i == j); //False
+  //看范围，若-128~127就是直接返回，否则就是new Integer(xx)
+  Integer m = 1;
+  Integer n = 1;
+  System.out.println(m == n);//True
+  Integer x = 128;
+  Integer y = 128;
+  System.out.println(x == y);//False
+  Integer i11 = 127;
+  int i12 = 127;
+  System.out.println(i11 == i12);//True，有基础类型就比较数值
+}
+```
+
+```java
+//String类，final类，不可被继承
+//有属性private final char value[],用于存储字符串内容，value是final类型，地址不可修改，内容可
+//两种创建方式
+String s = "abc"; // 先从常量池常看是否有abc数据空间，如果有，直接指向，否则重新创建然后指向，s最终指向常量池的空间地址
+String s2 = new String("abc");//先在堆中创建空间，里面维护了value属性，指向常量池的abc空间。如果没有abc，重新创建，如果有，直接通过value，最终指向堆中空间地址，堆中对象指向常量池空间地址
+
+String s1 = "hello";
+s1 = "haha"; //在常量池中创建新的haha对象，然后s1指向这个对象
+String s = "hello" + "abc";//优化等价"helloabc",只创建一个对象
+
+//1. 先创建一个StringBuilder sb = StringBuilder()在堆中
+//2. 执行sb.append("hello")
+//3. sb.append("abc")，append是在原字符串基础上加的
+//4. String c = sb.toString(),c最后指向堆中的对象value[] ->池中"helloabc"
+//总结："ab"+"ac"常量相加，看的是池，a+b看的是堆
+String a = "hello";
+String b = "abc";
+String c = a + b;
+String d = "helloabc";
+System.out.println(c == d); //False
+
+//String 保存字符串常量，里面的值不能更改，每次更新就是更改地址 private final char[] value
+//StringBuffer，保存字符串变量，值可以更改，更新的是内容而不是抵制, char[] value
+// String => StringBuffer
+// 1 构造器
+String str = "hello";
+StringBuffer strb = new StringBuffer(str);
+// 2 append
+StringBuffer strb2 = new StringBuffer();
+strb2 = strb2.append(str);
+// StringBuffer => String
+// 1 toString
+StringBuffer strb = new StringBuffer("asdsad");
+String s = strb.toString();
+// 2 构造器
+String s1 = new String(strb);
+
+//StringBuilder 不是线程安全，优先用于单线程的操作，使用方法和StringBuffer一致
+//StringBuilder 是final类，不能被继承，对象序列存在其父类的AbstractStringBuilder的char[]中，因此字符序列在堆中。
+
+//String:不可变字符序列，效率低，复用率高
+//StringBuffer:可变字符序列，效率较高(增删)，线程安全
+//StringBuilder:可变字符序列，效率高，线程不安全
+//注意：如果对String做大量修改，不用String
+//效率：StringBuilder > StringBuffer > String
+```
+
+```java
+import java.util.Arrays;
+import java.util.Comparator;
+//Arrays类
+public class main {
+  Integer arr[] = {1, 2, 3, 4, 5};
+  Arrays.toString(arr);//返回数组的字符串形式
+  Arrays.sort(arr); //排序
+  Arrays.sort(arr, new Comparator<Integer>() { // 自定义排序方式
+    @Override
+    public int compare(Integer o1, Integer o2) {
+      return o2-o1;
+    }
+  });
+	int index = Arrays.binarySearch(arr,1); //二分查找,如果不存在，返回-(low+1)
+  Integer newArr = Arrays.copyOf(arr,arr.length); //拷贝，如果拷贝长度大于arr.length,后面用null补上，如果拷贝长度小于0，返回错误
+  Integer[] num = new Integer[]{1,2,3};
+  Arrays.fill(num,99); //[99,99,99] 用后面的数字去填充num数组，可以理解成替换原来的元素
+  Integer[] arr2 = {1,2,3};
+  boolean equals = Arrays.equals(arr,arr2); //比较两个数组是否完全一致
+  List aslist = Arrays.asList(2,3,4,5) //将数据转成一个list集合
+}
+```
+
+```java
+//BigInteger, 当数字很大的时候使用
+BigInteger biginteger = new BigInteger("231233123214345435656876798709980");
+BigInteger biginteger2 = new BigInteger("231233123214345435656876798709980");
+//运算的时候需要用相应的方法，不能直接使用+-*/
+BigInteger biginteger3 = biginteger.add(biginteger2);
+// BigDecimal，当需要保留精度很高的时候使用
+BigDecimal bigdecimal = new BigDecimal("213.12312431232454678977689");
+//同理，运算的时候需要使用相应的方法
+```
+
+### 集合(List & Set) 
+
+**ArrayList** 
+
+1. 允许所有元素，空值也可以存放。底层是由数组实现存储
+2. 基本等同于vector，线程不安全的，多线程的情况下，不建议使用
+3. 底层源码分析:ArrayList中维护了一个OBJECT类型的数组elementData。当创建对象时，如果使用的是无参构造器，则elementData初始容量为0，第一次添加时，扩容到10，如果需要继续扩容，则为1.5倍。如果使用指定大小的构造器，则初始为指定大小，扩容为1.5倍
+
+**Vector**
+底层也是对象数组，线程安全的，无参构造，默认10，扩容按照2倍
+
+**LinkedList **
+
+1. 底层实现了双向链表和双端队列特点
+2. 可以添加任意元素，线程不安全
+
+**HashSet**
+
+1. 底层是HashMap，可以存放null，只能有一个
+2. 不保证元素是有序的，取决于hash后，再确定索引的结果
+3. 底层源码分析：底层是HashMap，添加一个元素时，先得到hash值，然后得到索引。找到存储数据table，根据索引判断是否已经存放元素。如果没有，直接加入。如果有，调用equals比较，如果相同，放弃添加，否则以链表添加到后面。
+4. 扩容树化机制：第一次添加时，table数组扩容到16，临界值是16*加载因子(0.75)=12，如果table使用到达了临界值12，就会扩容到16*2=32,新的临界值就是32*0.75=24，以此类推。在java8中，如果一条链表的元素个数到达TREEIFY_THRESHOLD(默认8),并且table大小>= MIN_TREEIFY_CAPACITY(默认64)，就会进行树化(红黑树)，否则默认采用数组扩容机制
+
+**LinkedHashSet**
+底层是LinkedHashMap，维护了一个数组+双向链表，使用hashcode决定存放位置，同时使用链表维护元素的次序。不允许添加重复元素
+
+### Map
+
+**HashMap**
+
+1. 保存具有映射关系的key-value 元素，key和value可以是任何引用类型的数据，会封装到HashMap$Node对象中。为了方便遍历，会创建一个EntrySet，存放了元素Entry，每个Entry对象就有key,value, EntrySet<Entry<Key,value>>。Node实现了Entry的接口，但实际存放的还是Node。
+2. key不允许重复，当有相同key则时替换value，value可重。key和value可以为空，key为null只能有一个。key和value存在单向一对一关系。
+3. 扩容树化机制：底层维护了一个node类型的数组table，默认为null。当创建对象时，加载因子初始化为0.75。当添加key-value使，通过key的哈希值得到table索引，然后判断该处是否有元素。没有直接添加，如果有，判断要加入的key和当前元素的key是否相等，如果相等则直接替换value；如果不相等判断是树形结构还是链表，作出相应处理。第一次添加，table扩容为16，临界值12，之后再扩容，容量为原来的2倍一次类型。如果一条链表的元素个数到达TREEIFY_THRESHOLD(默认8),并且table大小>= MIN_TREEIFY_CAPACITY(默认64)，就会进行树化(红黑树)，否则默认采用数组扩容机制
+
+```java
+//遍历方式
+// 1.先取出所有的key
+Set keyset = map.keySet();
+//1.1使用for循环
+for (Object key: keyset){
+  System.out.println(map.get(key));
+}
+//1.2使用迭代器
+Iterator iterator = keyset.iterator();
+while(iteator,hasNext()){
+  Object key = iterator.next();
+  System.out.println(map.get(key));
+}
+
+//2.取出所有的values,然后使用for或者迭代器取出所有的值
+Collections values = map.values();
+//2.1使用for
+for (Object value: values){
+  System.out.println(value);
+}
+//2.2使用迭代器
+Iterator iterator = values.iterator();
+while(iteator,hasNext()){
+  Obejct value = iterator.next();
+  System.out.println(values);
+}
+
+//3. 使用EntrySet取出k-v
+Set entrySet = map.entrySet();
+//3.1使用for循环
+for (Object entry: entrySet){
+  Map.Entry m = (Map.Entry) entry;
+  System.out.println(m.getKey() + m.getValue());
+}
+//3.2使用迭代器
+Iterator iterator = entrySet.iterator();
+while(iteator,hasNext()){
+  Map.Entry m = (Map.Entry) iterator.next();
+  System.out.println(m.getKey() + m.getValue());
+}
+```
+
+**HashTable**
+
+1. 存放元素是k-v，键和值都不能为null，否则会抛出NullPointerException，使用方法和HashMap一致，线程安全的。
+2. 底层有数组HashTable$Entry[]，初始化大小为11，临界值是11*0.75=8。扩容变为2倍再加1
+
+**Properties** 
+
+1. properties类继承自Hashtable类并且实现Map接口，使用特点和Hashtable类似。
+2. 还可用于从xxx.properties文件中，加载数据到properties类对象，进行读取和修改
+
+**如何选择集合实现类**
+
+1. 先判断存储的类型(一组对象还是一组键值对)
+2. 一组对象：
+   1. 允许重复：List
+      1. 增删多：LinkedList，底层双向链表
+      2. 该柴东：ArrayList，底层维护object类型可变数组
+   2. 不允许：Set
+      1. 无序：HashSet，底层是哈希表(数组+链表+红黑树)
+      2. 排序：TreeSet
+      3. 插入和取出顺序一致：LinkedHashSet，数组+双向链表
+3. 一对键对值：Map
+   1. 键无序：Hashmap 底层哈希表
+   2. 键排序：TreeMap
+   3. 插入和取出顺序一致：LinkedHashMap
+   4. 读取文件：Properties
+
+**TreeSet**
+
+底层TreeMap，使用无参构造器创建TreeSet，是无序的。需要用带有比较器的构造器并指定排序规则
+
+去重机制：如果传入了comparator匿名对象，就使用实现的compare去重，如果返回0，就认为是相同的。如果没有传入，则按照添加对象实现的comparable接口的compareTo去重。
+
+```java
+TreeSet treeSet = new TreeSet(new Comparator(){
+  @Override
+  public int compare(Object o1, Object o2){ 
+    return ((String)o1).compareTo((String)o2);//按照字母表顺序排序
+    return ((String)o1).length() - ((String)o2).length()//按照长度从小到大
+  }
+});
+treeSet.add("jack");
+treeSet.add("a");
+treeSet.add("tom");
+
+TreeSet treeSet = new TreeSet();
+//构造器并没有传入comparator接口的匿名内部类，所有底层会尝试把Person转成comparable类型
+//因为Person并没有实现comparable接口，所有会报错
+treeSet.add(new Person())
+class Person{}
+//解决方法
+class Person implements Comparable{
+  @Override
+  public int compareTo(Object o){
+    return ...//自己定义如何比较
+  }
+}
+```
+
+**TreeMap**
+
+同理，使用默认的无参构造器创建TreeMap，是无序的，需要用带有比较器的构造器并指定排序规则
+
+```java
+TreeSet treeMap = new TreeMap(new Comparator(){
+  @Override
+  public int compare(Object o1, Object o2){ 
+    return ((String)o1).compareTo((String)o2);//按照字母表顺序排序
+    return ((String)o1).length() - ((String)o2).length()//按照长度从小到大
+  }
+});
+treeMap.put("jack","adasd");
+treeMap.put("a","123");
+treeMap.put("tom","asaeqwe");
+```
+
+### 泛型
+
+参数化类型，在类声明时通过一个标识表示类中某个属性的类型，或某个方法返回值的类型，或参数类型
+
+```java
+//泛型的声明
+interface 接口<T>{} 和class类<K,V>{}, T,k,v不代表值，代表类型，也可用其他字母表示
+  
+Person<String> person = new Person<String>("asda");
+Person<Integer> person = new Person<Integer>(100);
+class Person<E>{
+  E s; //E 表示s的数据类型，该数据类型在定义Person对象的时候指定，在编译期间，就确定E是什么类型
+  public Person(E s){//也可以是参数类型
+    this.s = s;
+  }
+  public E f(){//返回值类型是E
+    return s;
+  }
+}
+
+//给泛型指定数据类型，要求是引用类型，不能是基本类型
+List<Integer> list = new List<Integer>();//ok
+List<int> list = new List<int>();//错误
+
+//在给泛型指定具体类型后，可以传入该类型或者其子类
+Pig<A> pig = new Pig<A>(new A());
+Pig<A> pig = new Pig<A>(new B());//B是A的子类，可以传入
+class A{}
+class B extends A{}
+class Pig<E>{
+  E e;
+  public Pig(E e){
+    this.e = e;
+  }
+}
+
+//泛型的使用形式
+List<Integer> list1 = new List<Integer>(); //常规形式
+ArrayList<Integer> list2 = new ArrayList<>(); //省略形式，在实际开发中常用
+//默认的泛型类型是Object
+ArrayList arr = new ArrayList(); //等价于 ArrayList<Object> arr = new ArrayList<>();
+
+//自定义泛型类
+class 类名<T,R...>{//...表示可以有多个泛型
+  成员
+}
+//普通成员可以使用泛型
+//使用泛型的数组，不能初始化
+//静态方法中不能使用类的泛型
+class Tiger<T,R,M>{
+  String name;
+  T t;
+  R r;
+  M m;
+  T[] ts; //不能初始化，因为类型没确定，无法开辟内存空间
+}
+
+//自定义泛型接口
+//静态成员不能使用泛型
+//泛型接口的类型，在继承接口或实现接口时确定
+interface Ia extends a<String,Double>{}
+//当实现Ia接口时，因为Ia继承了a接口，指定了U->String,R->Double, 在实现a接口的方法是，替换U,R
+class II implements Ia{
+  @Override
+  public Double get(String s){
+    return null;
+  }
+  @Override
+  public void hi(Double d){
+  }
+}
+class Ib implements a<Integer,Float>{
+  ...//实现a的方法是，也会替换U->Integer和R->Float
+}
+interface a<U,R>{
+  R get(U u);
+  U name; //错误
+  void hi(R r){}
+}
+
+//自定义泛型方法: 修饰符<T,R...>返回类型 方法名(参数列表){}
+//可以再普通类中，也可以在泛型类中
+Car car = new Car();
+car.fly("bmw",1000);//当调用时，传入参数，编译器就会确认类型
+Fish<String,ArrayList> = new Fish<>();
+fish.hello(new ArrayList(),11.3f);
+
+class Car{
+  public <T,R> void run(T t, R r){} 
+}
+class Fish<T,R>{
+  public<U,M> void run(U u, M m){}
+  public void hi(T t){//不是泛型方法，而是方法使用了类声明的泛型
+  }
+  //泛型方法，可以使用类声明的泛型，也可以使用自己声明的
+  public<K> void hello(R r, K k){
+  }
+}
+
+//泛型的继承和通配符
+//泛型不具备继承
+List<Object> list = new List<String>(); //错误
+//List<?>表示任意的泛型都可以接收
+public static void print1(List<?> c){}
+//? extends AA 表示上限，可以接收AA和其子类
+public static void print2(List<? extends AA> c){}
+//？super AA 表示下限，可以接收AA和其父类，不限于直接父类
+public static void print3(List<? super AA> c){}
+class AA{}
+class BB extends AA{}
+class CC extends BB{}
+
+List<Object> list1 = new ArrayList<>();
+List<String> list2 = new ArrayList<>();
+List<AA> list3 = new ArrayList<>();
+List<BB> list4 = new ArrayList<>();
+List<CC> list5 = new ArrayList<>();
+//全部ok
+print1(list1);
+print1(list2);
+print1(list3);
+print1(list4);
+print1(list5);
+//AA和AA子类
+print2(list1);//错误
+print2(list2);//错误
+print2(list3);//ok
+print2(list4);//ok
+print2(list5);//ok
+//AA和AA父类
+print3(list1);//ok
+print3(list2);//错误
+print3(list3);//ok
+print3(list4);//错误
+print3(list5);//错误
+```
+
+### 多线程
+
+创建线程的两种方式
+
+1. 继承Thread类，重写run方法
+2. 实现Runnable接口，重写run方法
+
+```java
+// 继承Thread类
+public class Thread01 {
+    public static void main(String[] args) {
+        Cat cat = new Cat(); //创建cat对象，当做县城使用
+        //cat.run(); 此时不是线程，就是普通run方法，就是串行化了
+        cat.start();
+    }
+}
+class Cat extends Thread{ //当一个类继承Thread，就可以当成线程使用
+    int times = 0;
+    @Override
+    public void run() {//重写run方法
+        while (true) {
+            System.out.println("cat");
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+}
+
+//实现Runnable接口
+public class Thread02 {
+    public static void main(String[] args) {
+        Dog dog = new Dog();
+        //dog.start() 没有此方法
+        Thread thread = new Thread(dog);//创建thread对象。把dog传入
+        thread.start();
+    }
+}
+class Dog implements Runnable{//通过实现Runnable接口实现线程
+    int count = 0;
+    @Override
+    public void run() {
+        while (true){
+            System.out.println("hi");
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+}
+```
+
+用户线程：工作线程，当线程的任务执行完或者通知方式结束
+
+守护线程：为工作线程服务，当所有用户线程结束后，其结束，常见的是垃圾回收机制. setDaemon(true)
+
+**线程同步机制**： 保证数据在任何同一时刻，最多有一个线程访问
+
+```java
+synchronized(对象){
+} //同步代码块
+public synchronized void f(){
+} //同步方法
+//互斥锁，保证数据完整性，需要保证锁的对象是同一个
+//如果锁在非静态方法时，这是锁在this对象
+//如果在静态方法中实现，这是锁在类本身，即为类.class
+
+//线程死锁：多个线程都占用了对方的资源，互不相让，导致死锁
+//释放锁
+// 1. 当前线程的同步方法，同步代码块执行结束
+// 2. 当前线程在同步方法，代码块中遇到break，return
+// 3. 当前线程在同步方法，代码块中遇到未处理的error和exception，导致异常结束
+// 4. 当前线程在同步方法，代码块中执行了执行对象的wait方法，线程暂停，释放锁
+//下面方法不会释放锁
+//1. 调用sleep，yield， 不会释放锁
+//2. 当前线程在同步方法，代码块中执行时，其他线程执行suspend方法将线程挂起，不会释放锁
+```
+
+### 文件&IO流
+
+```java
+//创建文件相关方法
+new File(String pathname).createNewFile(); //根据路径创建文件
+new File(File parent, String child);//根据父目录文件+子路径
+new File(String parent,String child);//根据父目录+子路径
+//mkdir()创建一级目录, mkdirs()创建多级目录, delete()删除空目录或者文件
+```
+
+输入input：读取外部数据到程序中
+输出output：将程序中数据输出到磁盘，光盘等
+
+流的分类：
+
+1. 按照操作数据的单位不同：字节流(8 bit)，字符流(按字符)
+2. 按照数据的流向不同：输入流，输出流
+3. 按照流的角色不同：节点流，处理流
+
+![Screenshot 2023-04-17 at 3.11.05 PM](/Users/lawrencezhang/Desktop/self-learning-path/java-learning-path/Screenshot 2023-04-17 at 3.11.05 PM.png)
+
+节点流：从一个特点的数据源进行读写操作，fileReader, fileWriter
+
+处理流：是连接已存在的流之上，为程序提供更强大的读写功能, BufferReader, BufferWriter
+
+序列化：保存数据的值和类型
+
+反序列化：恢复数据的值和类型
+
+为了实现可序列化，必须实现两个接口之一：serializable或者externalizable
+
+
 
