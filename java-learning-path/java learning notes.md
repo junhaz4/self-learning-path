@@ -462,21 +462,21 @@ public class A{
 
 ```java
 // static: 存在于类中，所有创建的对象都可以访问，不需要创建对象也能访问
-class Car {
+class class_.Car {
     static (public) int topSpeed = 100;  
     (public) static int maxCapacity = 4;  
   	public int n1;
   	public static void show(){ //静态方法只能访问静态属性，静态方法
-      Car.topSpeed += 10;
+      class_.Car.topSpeed += 10;
       System.out.println(this.maxCapacity);//类方法不允许使用和对象有关的关键字，this，super
     }
 }
 class Demo {
     public static void main(String args[]){
-    Car c = new Car();
-    System.out.println(Car.topSpeed); //100
+    class_.Car c = new class_.Car();
+    System.out.println(class_.Car.topSpeed); //100
     System.out.println(c.topSpeed); //100
-    System.out.println(Car.n1); //错误
+    System.out.println(class_.Car.n1); //错误
   }
 }
 ```
@@ -485,14 +485,14 @@ class Demo {
 
 ```java
 // non-static: 存在于类中，每个创建的对象都可以对这些属性有自己独特的值
-class Car {
+class class_.Car {
     // static fields
     int speed = 100;
     int capacity = 4;  
 } //必须创建一个对象才能访问这些属性
 class Demo {
     public static void main(String args[]){
-    Car obj1 = new Car();
+    class_.Car obj1 = new class_.Car();
     System.out.println(obj1.speed);
     System.out.println(obj1.capacity);   
   }
@@ -677,12 +677,12 @@ class Cat{
 11. final和static往往搭配使用，不会导致类加载，底层效率高
 
 ```java
-class Car {
+class class_.Car {
   final int capacity = 4;
 }
 class Demo {
    public static void main(String args[]) {
-      Car car = new Car();
+      class_.Car car = new class_.Car();
       car.capacity = 5; // 错误
    }
 }
@@ -761,18 +761,18 @@ class Vehicle {
     System.out.println("I am from the Vehicle Class");
   }
 } 
-class Car extends Vehicle{
+class class_.Car extends Vehicle{
   int fuel = 100;
   public void info() {
     System.out.println("Fuel Capacity from the Vehicle class: " + super.fuelCap); 
-    System.out.println("Fuel Capacity from the Car class: " + fuelCap);
+    System.out.println("Fuel Capacity from the class_.Car class: " + fuelCap);
   }
   public void display() { //display method inside SubClass
-    System.out.println("I am from the Car Class");
+    System.out.println("I am from the class_.Car Class");
   } 
   public void printOut(){
     super.display();  //calling the display() of Vehicle(SuperClass)
-    display();        //calling the display() of the Car(SubClass)
+    display();        //calling the display() of the class_.Car(SubClass)
   }
 }
 ```
@@ -813,9 +813,9 @@ class Vehicle {          //Base Vehicle class
     System.out.println("The top speed is set to: "+ topSpeed);
   }
 } 
-class Car extends Vehicle { // sub class Car extending from Vehicle
+class class_.Car extends Vehicle { // sub class class_.Car extending from Vehicle
   public void openTrunk() {  
-    System.out.println("The Car trunk is Open Now"); 
+    System.out.println("The class_.Car trunk is Open Now"); 
   } 
 } 
 
@@ -827,12 +827,12 @@ class Vehicle {          //Base Vehicle class
     System.out.println("The top speed is set to: "+ topSpeed);
   }
 }
-class Car extends Vehicle { // Derived from Vehicle Base for Prius
+class class_.Car extends Vehicle { // Derived from Vehicle Base for Prius
   public void openTrunk() {
-    System.out.println("The Car trunk is Open Now!"); 
+    System.out.println("The class_.Car trunk is Open Now!"); 
   } 
 } 
-class Prius extends Car {// Derived from Prius & can be base to any further class
+class Prius extends class_.Car {// Derived from Prius & can be base to any further class
   public void turnOnHybrid() {
     System.out.println("The Hybrid mode is turned on!"); 
   } 
@@ -846,8 +846,8 @@ class Vehicle {          //Base Vehicle class
     System.out.println("The top speed of "+getClass().getSimpleName()+" is set to: "+ topSpeed);
   }
 } 
-class Car extends Vehicle { // Derived from Vehicle Base for Prius
-  //implementation of Car class
+class class_.Car extends Vehicle { // Derived from Vehicle Base for Prius
+  //implementation of class_.Car class
 } 
 class Truck extends Vehicle {// Derived from Prius can be base to any further class
   //implementation of Truck class
@@ -1073,7 +1073,7 @@ String b = new String("ads");
 System.out.print(s==b); //false
 System.out.print(a.equals(b)); // true
 
-car bmw = new Car("bmw");
+car bmw = new class_.Car("bmw");
 bmw = null; //此时car对象就是一个垃圾，垃圾回收器就会回收对象，会调用该对象的finalize方法，程序员可以在此方法中写作业的业务逻辑，比如释放资源，数据库连接等等
 //如果不在该对象重写finalize方法，就会调用object类的finalize方法，如果重写了就可以实现自己的逻辑
 class car{
@@ -1183,21 +1183,21 @@ public interface Hockey extends Sports, Event{}
 接口可以实现代码解耦（接口规范+动态绑定）
 ```java
 // 多个继承的实现需要interface
-class Car {  // Base class
+class class_.Car {  // Base class
     private int model;  // Common features of all cars
-    public Car(int model) {  // Constructor
+    public class_.Car(int model) {  // Constructor
         this.model = model;
     }
     public void printDetails() {
         System.out.println("The model of " + getClass().getSimpleName() + " is: " + model);
     }
-}  // End of Car class
+}  // End of class_.Car class
 
 interface IsSedan {  // Interface for sedans
     int bootSpace = 420;  // Sedans have boot space
     void bootSpace();    // Every sedan must implement this
 }  // End of IsSedan interface
-class Elantra extends Car implements IsSedan {  // Elantra is a Car and is a Sedan also
+class Elantra extends class_.Car implements IsSedan {  // Elantra is a class_.Car and is a Sedan also
     private String variant;    // Elantra's data member
     public Elantra(int model, String variant) {  // Constructor
         super(model);  // Calling the parent constructor with alredy known manufacturer
@@ -1628,7 +1628,7 @@ BigDecimal bigdecimal = new BigDecimal("213.12312431232454678977689");
 
 **HashSet**
 
-1. 底层是HashMap，可以存放null，只能有一个
+1. 底层是HashMap，可以存放null，只能有一个，线程不安全
 2. 不保证元素是有序的，取决于hash后，再确定索引的结果
 3. 底层源码分析：底层是HashMap，添加一个元素时，先得到hash值，然后得到索引。找到存储数据table，根据索引判断是否已经存放元素。如果没有，直接加入。如果有，调用equals比较，如果相同，放弃添加，否则以链表添加到后面。
 4. 扩容树化机制：第一次添加时，table数组扩容到16，临界值是16*加载因子(0.75)=12，如果table使用到达了临界值12，就会扩容到16*2=32,新的临界值就是32*0.75=24，以此类推。在java8中，如果一条链表的元素个数到达TREEIFY_THRESHOLD(默认8),并且table大小>= MIN_TREEIFY_CAPACITY(默认64)，就会进行树化(红黑树)，否则默认采用数组扩容机制
@@ -1642,7 +1642,7 @@ BigDecimal bigdecimal = new BigDecimal("213.12312431232454678977689");
 
 1. 保存具有映射关系的key-value 元素，key和value可以是任何引用类型的数据，会封装到HashMap$Node对象中。为了方便遍历，会创建一个EntrySet，存放了元素Entry，每个Entry对象就有key,value, EntrySet<Entry<Key,value>>。Node实现了Entry的接口，但实际存放的还是Node。
 2. key不允许重复，当有相同key则时替换value，value可重。key和value可以为空，key为null只能有一个。key和value存在单向一对一关系。
-3. 扩容树化机制：底层维护了一个node类型的数组table，默认为null。当创建对象时，加载因子初始化为0.75。当添加key-value使，通过key的哈希值得到table索引，然后判断该处是否有元素。没有直接添加，如果有，判断要加入的key和当前元素的key是否相等，如果相等则直接替换value；如果不相等判断是树形结构还是链表，作出相应处理。第一次添加，table扩容为16，临界值12，之后再扩容，容量为原来的2倍一次类型。如果一条链表的元素个数到达TREEIFY_THRESHOLD(默认8),并且table大小>= MIN_TREEIFY_CAPACITY(默认64)，就会进行树化(红黑树)，否则默认采用数组扩容机制
+3. 扩容树化机制：底层维护了一个node类型的数组table，默认为null。当创建对象时，加载因子初始化为0.75。当添加key-value使，通过key的哈希值得到table索引，然后判断该处是否有元素。没有直接添加，如果有，判断要加入的key和当前元素的key是否相等，如果相等则直接替换value；如果不相等判断是树形结构还是链表，作出相应处理。第一次添加，table扩容为16，临界值12，之后再扩容，容量为原来的2倍以此类推。如果一条链表的元素个数到达TREEIFY_THRESHOLD(默认8),并且table大小>= MIN_TREEIFY_CAPACITY(默认64)，就会进行树化(红黑树)，否则默认采用数组扩容机制
 
 ```java
 //遍历方式
@@ -1845,12 +1845,12 @@ interface a<U,R>{
 
 //自定义泛型方法: 修饰符<T,R...>返回类型 方法名(参数列表){}
 //可以再普通类中，也可以在泛型类中
-Car car = new Car();
+class_.Car car = new class_.Car();
 car.fly("bmw",1000);//当调用时，传入参数，编译器就会确认类型
 Fish<String,ArrayList> = new Fish<>();
 fish.hello(new ArrayList(),11.3f);
 
-class Car{
+class class_.Car{
   public <T,R> void run(T t, R r){} 
 }
 class Fish<T,R>{
@@ -1966,7 +1966,8 @@ class Dog implements Runnable{//通过实现Runnable接口实现线程
 synchronized(对象){
 } //同步代码块
 public synchronized void f(){
-} //同步方法
+} 
+//同步方法
 //互斥锁，保证数据完整性，需要保证锁的对象是同一个
 //如果锁在非静态方法时，这是锁在this对象
 //如果在静态方法中实现，这是锁在类本身，即为类.class
@@ -2058,12 +2059,117 @@ public class Question {
 }
 ```
 
-![Screenshot 2023-05-03 at 5.52.24 PM](/Users/lawrencezhang/Desktop/self-learning-path/java-learning-path/Screenshot 2023-05-03 at 5.52.24 PM.png)
+![Screenshot 2023-05-04 at 6.32.00 PM](/Users/lawrencezhang/Desktop/self-learning-path/java-learning-path/Screenshot 2023-05-04 at 6.32.00 PM.png)
 
 优缺点：
 
 1. 可以动态地创建和使用对象，使用灵活，没有反射机制，框架技术失去底层支撑
 2. 使用反射是基本解释执行，影响执行速度，可以使用.setAccessible(True)提高速度
 
-sad
+#### Class类分析
 
+1. class类也是类，因此继承Object类
+2. class类不是new出来的，而是系统创建的
+3. 对于某个类的class对象，内存中只有一份，只会加载一次
+4. 每个类的实例都知道自己对应的class对象
+5. 通过class对象可以完整的得到一个类的结构
+6. class对象存放在堆的，类的字节码二进制数据存放在方法区
+
+获取class对象的6种方式
+
+```java
+public static void main(String[] args) throws Exception{
+        //1. 已知一个类的全名，且该类在类路径下，可通过Class.forName获得。多用于配置文件，读取类全路径
+        String classFullPath = "class_.Car"; //通过配置文件读取
+        Class cls1 = Class.forName(classFullPath);
+        System.out.println(cls1);
+        //2. 已知具体的类，通过类名.class，用于参数传递
+        Class cls2 = Car.class;
+        System.out.println(cls2);
+        //3. 已知类的实例，通过getClass
+        Car car = new Car();
+        Class cls3 = car.getClass();
+        System.out.println(cls3);
+        //4.通过类加载器获取class对象
+        //(1)先得到类加载器
+        ClassLoader classLoader = car.getClass().getClassLoader();
+        //(2)通过类加载器得到class对象
+        Class cls4 = classLoader.loadClass(classFullPath);
+        System.out.println(cls4);
+        //5.基本数据类型，通过.class获得
+        Class<Integer> integerClass = int.class;
+        Class<Character> characterClass = char.class;
+        System.out.println(integerClass);
+        //6.基本数据对应的包装类，通过.TYPE
+        Class<Integer> type = Integer.TYPE;
+        System.out.println(type);
+    }
+```
+
+**有class对象的类型**
+
+1. 外部类，成员内部类，静态内部类，局部内部类，匿名内部类
+2. interface：接口
+3. 数组
+4. enum：枚举
+5. annotation：注解
+6. 基本数据类型
+7. void
+
+#### 类加载
+
+静态加载：编译时加载相关的类，如果没有则报错，依赖性强
+
+动态加载：运行时加载的类，如果运行时不用该类就不报错
+
+类加载时机：
+
+1. 当创建对象时，//静态加载
+2. 当子类被加载时，父类也加载 //静态加载
+3. 调用类中的静态成员 //静态加载
+4. 通过反射 //动态加载
+
+![Screenshot 2023-05-04 at 6.27.22 PM](/Users/lawrencezhang/Desktop/self-learning-path/java-learning-path/Screenshot 2023-05-04 at 6.27.22 PM.png)
+
+![Screenshot 2023-05-04 at 6.30.19 PM](/Users/lawrencezhang/Desktop/self-learning-path/java-learning-path/Screenshot 2023-05-04 at 6.30.19 PM.png)
+
+![Screenshot 2023-05-04 at 6.33.28 PM](/Users/lawrencezhang/Desktop/self-learning-path/java-learning-path/Screenshot 2023-05-04 at 6.33.28 PM.png)
+
+![Screenshot 2023-05-04 at 6.33.47 PM](/Users/lawrencezhang/Desktop/self-learning-path/java-learning-path/Screenshot 2023-05-04 at 6.33.47 PM.png)
+
+![Screenshot 2023-05-04 at 6.52.34 PM](/Users/lawrencezhang/Desktop/self-learning-path/java-learning-path/Screenshot 2023-05-04 at 6.52.34 PM.png)
+
+```java
+public int n1 = 10; //实例属性，非静态变量，在准备阶段不分配内存
+public static int n2 = 20; //静态变量，分配内容，默认初始化为0
+public static final int n3 =30; //常量，一旦赋值就不变，n3=30
+```
+
+![Screenshot 2023-05-04 at 7.06.37 PM](/Users/lawrencezhang/Desktop/self-learning-path/java-learning-path/Screenshot 2023-05-04 at 7.06.37 PM.png)
+
+![Screenshot 2023-05-04 at 7.12.34 PM](/Users/lawrencezhang/Desktop/self-learning-path/java-learning-path/Screenshot 2023-05-04 at 7.12.34 PM.png)
+
+#### 通过反射创建对象
+
+1. 调用类中public修饰的无参构造器
+2. 调用类中的制定构造器
+3. class类相关方法
+   1. newInstance 调用类中的无参构造器，获取对应类的对象
+   2. getConstructor(Class...) 根据参数列表,获取对应的public构造器对象
+   3. getDeclaredConstructor(Class...)根据参数列表,获取对应的所有构造器对象
+4. Constructor类相关方法
+   1. setAccessible爆破
+   2. newInstance(Object...)调用构造器
+
+#### 通过反射访问类成员
+
+1. 根据属性名获取field对象： class对象.getDeclaredField(属性名)
+2. setAccessible爆破
+3. 访问：f.set(o,值)；syso(f.get(o))
+4. 如果是静态属性，则set和get中的参数可以写成null
+
+#### 通过反射访问方法
+
+1. 根据方法名和参数列表获取Method方法对象，getDeclaredMethod(方法名，参数class对象)
+2. 将方法进行爆破，然后使用invoke
+3. 如果静态方法，则invoke的参数o可以是null

@@ -1,3 +1,5 @@
+import class_.Car;
+
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -21,4 +23,6 @@ public class io {
             }
         }
     }
+    Car car = new Car();
+
 }
